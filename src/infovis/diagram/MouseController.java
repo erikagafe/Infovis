@@ -201,6 +201,7 @@ public class MouseController implements MouseListener, MouseMotionListener {
             view.updateOverView((x - overViewOffsetX), (y - overViewOffsetY));
         } else if (view.markerContains(x, y)) {
             view.updateMarker(x - markerOffsetX, y - markerOffsetY);
+            // We also have to set the fisheye mode to the marker in order to check the effects inside the overview rectangle
             if(fisheyeMode){
                 fisheye.setMouseCoords(e.getX(), e.getY(), view);
                 view.setModel(fisheye.transform(model, view));
@@ -247,6 +248,8 @@ public class MouseController implements MouseListener, MouseMotionListener {
             /*
              * handle fish eye initial call
              */
+
+            // We are using the center point of the screen as the initial mouse coordinates
             fisheye.setMouseCoords(view.getWidth()/2, view.getHeight()/2, view);
             view.setModel(fisheye.transform(model, view)); //return a new model with the fisheye transformation
             view.repaint();
