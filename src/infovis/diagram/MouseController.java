@@ -7,6 +7,7 @@ import infovis.diagram.elements.Element;
 import infovis.diagram.elements.GroupingRectangle;
 import infovis.diagram.elements.None;
 import infovis.diagram.elements.Vertex;
+import infovis.diagram.layout.Fisheye;
 
 import java.awt.Color;
 import java.awt.event.MouseEvent;
@@ -30,6 +31,7 @@ public class MouseController implements MouseListener, MouseMotionListener {
     private DrawingEdge drawingEdge = null;
     private boolean fisheyeMode;
     private GroupingRectangle groupRectangle;
+    Fisheye fisheye = new Fisheye();
 
     /*
      * Getter And Setter
@@ -199,6 +201,10 @@ public class MouseController implements MouseListener, MouseMotionListener {
             view.updateOverView((x - overViewOffsetX), (y - overViewOffsetY));
         } else if (view.markerContains(x, y)) {
             view.updateMarker(x - markerOffsetX, y - markerOffsetY);
+            if(fisheyeMode){
+                fisheye.setMouseCoords(e.getX(), e.getY(), view);
+                view.setModel(fisheye.transform(model, view));
+            }
         } else if (view.overViewContains(x, y)) {
             view.updateOverView((x - overViewOffsetX), (y - overViewOffsetY));
         }
@@ -219,6 +225,11 @@ public class MouseController implements MouseListener, MouseMotionListener {
 
 
     public void mouseMoved(MouseEvent e) {
+        if(fisheyeMode){
+            fisheye.setMouseCoords(e.getX(), e.getY(), view);
+            view.setModel(fisheye.transform(model, view));
+            view.repaint();
+        }
     }
 
     public boolean isDrawingEdges() {
@@ -236,6 +247,8 @@ public class MouseController implements MouseListener, MouseMotionListener {
             /*
              * handle fish eye initial call
              */
+            fisheye.setMouseCoords(view.getWidth()/2, view.getHeight()/2, view);
+            view.setModel(fisheye.transform(model, view)); //return a new model with the fisheye transformation
             view.repaint();
         } else {
             Debug.p("new Normal Layout");
@@ -259,6 +272,4 @@ public class MouseController implements MouseListener, MouseMotionListener {
         }
         return currentElement;
     }
-
-
 }

@@ -48,7 +48,6 @@ public class View extends JPanel implements ComponentListener {
         overviewRect = new Rectangle2D.Double(getWidth() * 0.05, getHeight() * 0.05,  getWidth() * 0.2, getWidth() * 0.2 / ASPECT_RATIO);
         marker = new Rectangle2D.Double(overviewRect.getX(), overviewRect.getY(), overviewRect.getWidth() / scale, overviewRect.getHeight() / scale);
         rectanglesInitialized = true;
-
     }
 
     public void paint(Graphics g) {
@@ -62,6 +61,7 @@ public class View extends JPanel implements ComponentListener {
             initRectangles();
         }
 
+        //it creates the overview rectangle
         g2D.setColor(new Color(228, 235, 242, 205));
         g2D.fill(overviewRect);
         g2D.setColor(new Color(142, 211, 244, 205));
