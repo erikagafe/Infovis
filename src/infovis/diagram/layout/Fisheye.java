@@ -38,34 +38,43 @@ public class Fisheye implements Layout{
         double pFocusX = xPos;
         double pFocusY = yPos;
 
-        //a new coordinate is calculate for each vertex of the model.
+        //new coordinates and width/height are calculate for each vertex of the model
         List<Vertex> vertices = model.getVertices();
         for (Vertex vertex:
              vertices) {
 
-            double x = (vertex.getCenterX() - pFocusX) / getDmax(view.getWidth(), pFocusX, vertex.getCenterX());
-            double y = (vertex.getCenterY() - pFocusY) / getDmax(view.getHeight(), pFocusY, vertex.getCenterY());
+            //Calculate pFish x and y using the center of the vertex as the pNorm
+            double pNormX = vertex.getCenterX();
+            double pNormY = vertex.getCenterY();
 
-            double pFishXcenterPoint = pFocusX + (((d + 1) * x) / ((d * x) + 1)) * getDmax(view.getWidth(), pFocusX, vertex.getCenterX());
-            double pFishYcenterPoint = pFocusY + (((d + 1) * y) / ((d * y) + 1)) * getDmax(view.getHeight(), pFocusY, vertex.getCenterY());
+            double x = (pNormX - pFocusX) / getDmax(view.getWidth(), pFocusX, pNormX);
+            double y = (pNormY - pFocusY) / getDmax(view.getHeight(), pFocusY, pNormY);
 
-            double xVertexBoundary = vertex.getX() + vertex.getWidth();
-            double xVertex = (xVertexBoundary - pFocusX) / getDmax(view.getWidth(), pFocusX, xVertexBoundary);
-            double pFishX = pFocusX + (((d + 1) * xVertex) / ((d * xVertex) + 1)) * getDmax(view.getWidth(), pFocusX, xVertexBoundary);
+            double pFishX = pFocusX + (((d + 1) * x) / ((d * x) + 1)) * getDmax(view.getWidth(), pFocusX, pNormX);
+            double pFishY = pFocusY + (((d + 1) * y) / ((d * y) + 1)) * getDmax(view.getHeight(), pFocusY, pNormY);
+
+            //Calculate qFish x using the boundary of the original vertex as pNorm
+            pNormX = vertex.getX() + vertex.getWidth();
+            x = (pNormX - pFocusX) / getDmax(view.getWidth(), pFocusX, pNormX);
+            double qFishX = pFocusX + (((d + 1) * x) / ((d * x) + 1)) * getDmax(view.getWidth(), pFocusX, pNormX);
 
 //            double yVertexBoundary = vertex.getY() + vertex.getHeight();
 //            double yVertex = (yVertexBoundary - pFocusY) / getDmax(view.getHeight(), pFocusY, yVertexBoundary);
 //            double pFishY = pFocusY + (((d + 1) * yVertex) / ((d * yVertex) + 1)) * getDmax(view.getHeight(), pFocusY, yVertexBoundary);
 
+            //Calculate the ratio of the original vertex to preserve the width height ratio of nodes
             double ratio = vertex.getWidth() / vertex.getHeight();
 
-            double width = 2 * (pFishX - pFishXcenterPoint);
+            //Calculate the width and the height of the new vertex
+            double width = 2 * (qFishX - pFishX);
             // As we are using the ratio, we don't need to calculate the height using the pFishY and pFishYcenterPoint variables
             double height = width / ratio;
 
-            double topX = pFishXcenterPoint - (width / 2);
-            double topY = pFishYcenterPoint - (height / 2);
+            //Calculate the x and y coordinates of the new vertex
+            double topX = pFishX - (width / 2);
+            double topY = pFishY - (height / 2);
 
+            //Create the new vertex and add it to the new model
             Vertex newVertex = new Vertex(topX, topY, width, height);
             newModel.addVertex(newVertex);
         }
@@ -73,6 +82,7 @@ public class Fisheye implements Layout{
 		return newModel;
 	}
 
+	//dMax is the distance from the boundary of the screen to the focus
 	double getDmax(double pBoundary, double pFocus, double pNorm){
 	    if(pNorm > pFocus)
 	        return pBoundary - pFocus;
